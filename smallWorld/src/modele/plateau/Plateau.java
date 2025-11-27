@@ -131,33 +131,68 @@ public class Plateau extends Observable {
     public java.util.List<Case> casesAccessibles(Case start, int mouvement) {
         java.util.List<Case> resultat = new java.util.ArrayList<>();
         if (start == null || mouvement <= 0) return resultat;
+        casesAccessibles(start, mouvement, resultat);
+        return resultat;
+    }
 
-        // trouver la position de start pour indexation
-        java.awt.Point p = map.get(start);
-        if (p == null) return resultat;
+    /**
+     * Tutor-prescribed BFS: populate `lst` with reachable cases starting from
+     * `start`, exploring up to `enduranceRestante` steps (levels). This method
+     * follows the algorithm shape provided by the tutor: it visits the start
+     * and then explores neighbours recursively/level-by-level. We also forbid
+     * entering on a case containing units of the same class as the start unit.
+     */
+    public void casesAccessibles(Case start, int enduranceRestante, java.util.List<Case> lst) {
+        if (start == null || enduranceRestante <= 0 || lst == null) return;
 
-        int sx = p.x;
-        int sy = p.y;
+        // startClass is no longer used: we allow entering/passing over same-type units
 
-        // Parcours en ligne droite dans les 4 directions (haut, bas, gauche, droite)
-        // pour interdire les déplacements diagonaux et les changements de direction.
+        java.util.Set<Case> visited = new java.util.HashSet<>();
+
+        // mark start visited but do NOT add it to the result (base rules)
+        visited.add(start);
+
+        // enqueue first-level neighbours, each with its direction
+        class Node { Case c; int dir; Node(Case c, int dir){this.c=c;this.dir=dir;} }
+        java.util.Queue<Node> qq = new java.util.ArrayDeque<>();
+
         int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
-        for (int[] dir : dirs) {
-            for (int step = 1; step <= mouvement; step++) {
-                int nx = sx + dir[0] * step;
-                int ny = sy + dir[1] * step;
-                if (nx < 0 || nx >= SIZE_X || ny < 0 || ny >= SIZE_Y) break;
-                Case neigh = grilleCases[nx][ny];
-                // Autoriser l'entrée sur la case (empilement autorisé).
-                resultat.add(neigh);
-                // Si on souhaite stopper le parcours quand on rencontre une case
-                // occupée par un autre peuple (attaque possible), on pourrait
-                // ajouter une condition ici pour `break;`. Pour l'instant on
-                // continue la ligne même si la case est occupée.
-            }
+        // first level
+        for (int d = 0; d < dirs.length; d++) {
+            int nx = map.get(start).x + dirs[d][0];
+            int ny = map.get(start).y + dirs[d][1];
+            if (nx < 0 || nx >= SIZE_X || ny < 0 || ny >= SIZE_Y) continue;
+            Case neigh = grilleCases[nx][ny];
+            if (neigh == null) continue;
+            if (visited.contains(neigh)) continue;
+            visited.add(neigh);
+            lst.add(neigh);
+            qq.add(new Node(neigh, d));
         }
 
-        return resultat;
+        int level = 1;
+        while (level < enduranceRestante) {
+            if (qq.isEmpty()) break;
+            int curLevelSize = qq.size();
+            for (int i = 0; i < curLevelSize; i++) {
+                Node node = qq.poll();
+                if (node == null) continue;
+                Case cur = node.c;
+                int dir = node.dir;
+                java.awt.Point p = map.get(cur);
+                if (p == null) continue;
+                int nx = p.x + dirs[dir][0];
+                int ny = p.y + dirs[dir][1];
+                if (nx < 0 || nx >= SIZE_X || ny < 0 || ny >= SIZE_Y) continue;
+                Case neigh = grilleCases[nx][ny];
+                if (neigh == null) continue;
+                if (visited.contains(neigh)) continue;
+                visited.add(neigh);
+                lst.add(neigh);
+                qq.add(new Node(neigh, dir));
+            }
+            level++;
+        }
     }
 
     public boolean arriverCase(Case c, Unites u) {
@@ -179,7 +214,7 @@ public class Plateau extends Observable {
 
     public boolean deplacerUnite(Case c1, Case c2, int maxPortee) {
         // Valide que la case source contient bien une unité
-        if (c1 == null || c2 == null || c1.u == null) {
+        if (c1 == null || c2 == null || c1.getUnites() == null) {
             return false;
         }
 
@@ -204,7 +239,7 @@ public class Plateau extends Observable {
 
         // Effectuer le déplacement (allerSurCase retourne true si l'attaquant
         // est présent sur la case cible après résolution, false sinon)
-        boolean moved = c1.u.allerSurCase(c2);
+        boolean moved = c1.getUnites().allerSurCase(c2);
 
         if (moved) {
             setChanged();
@@ -226,10 +261,11 @@ public class Plateau extends Observable {
         for (int x = 0; x < SIZE_X; x++) {
             for (int y = 0; y < SIZE_Y; y++) {
                 Case c = grilleCases[x][y];
-                if (c != null && c.getUnites() != null) {
-                    Unites u = c.getUnites();
-                    if (u.getOwner() == j) {
-                        u.setHasMoved(false);
+                if (c != null) {
+                    for (Unites u : c.getAllUnites()) {
+                        if (u != null && u.getOwner() == j) {
+                            u.setHasMoved(false);
+                        }
                     }
                 }
             }

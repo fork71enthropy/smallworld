@@ -42,7 +42,9 @@ public abstract class Unites {
     }
 
     public void quitterCase() {
-        c.quitterLaCase();
+        if (c != null) {
+            c.quitterLaCase(this);
+        }
     }
     public boolean allerSurCase(Case _c) {
         if (c != null) {
@@ -80,8 +82,10 @@ public abstract class Unites {
         // combat aléatoire simple
         boolean attaquantGagne = new java.util.Random().nextBoolean();
         if (attaquantGagne) {
-            // retirer une unité défenderesse
-            cible.quitterLaCase();
+            // retirer une unité défenderesse (retire l'instance choisie)
+            if (def != null) {
+                cible.quitterLaCase(def);
+            }
             // ajouter l'attaquant (empilement/prise de case)
             cible.ajouterUnite(this);
             return true;

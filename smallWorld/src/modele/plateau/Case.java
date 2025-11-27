@@ -19,14 +19,21 @@ public class Case {
 
     // biome == type de terrain
     protected Biome biome;
-    protected Unites u;
+    protected java.util.List<Unites> units = new java.util.ArrayList<>();
     protected Plateau plateau;
-    // nombre d'unités présentes sur la case (du même type que `u`)
+    // nombre d'unités présentes sur la case (du même type que `units.get(0)`)
     protected int nbUnites = 0;
 
-    public void quitterLaCase() {
-        if (nbUnites > 0) nbUnites--;
-        if (nbUnites == 0) u = null;
+    public void quitterLaCase(Unites leaving) {
+        if (leaving == null) return;
+        // remove the specific unit instance from the stack if present
+        boolean removed = units.remove(leaving);
+        if (removed) {
+            nbUnites = units.size();
+        }
+        if (nbUnites == 0) {
+            // nothing left
+        }
     }
 
     public Case(Plateau _plateau) {
@@ -41,7 +48,8 @@ public class Case {
     }
 
     public Unites getUnites() {
-        return u;
+        if (units.isEmpty()) return null;
+        return units.get(0);
     }
 
     public int getNbUnites() {
@@ -50,13 +58,14 @@ public class Case {
 
     /** Ajoute une unité sur la case. Si c'est la première, on conserve une référence de type pour l'affichage. */
     public void ajouterUnite(Unites _u) {
-        if (u == null) {
-            u = _u;
-            nbUnites = 1;
-        } else {
-            // si même type on incrémente, sinon on remplace la référence mais on incrémente aussi
-            nbUnites++;
-        }
+        if (_u == null) return;
+        units.add(_u);
+        nbUnites = units.size();
+    }
+
+    /** Retourne une copie de la liste des unités présentes sur la case. */
+    public java.util.List<Unites> getAllUnites() {
+        return new java.util.ArrayList<Unites>(units);
     }
 
     public Biome getBiome() {
