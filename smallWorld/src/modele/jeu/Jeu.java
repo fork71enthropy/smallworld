@@ -1,0 +1,157 @@
+package modele.jeu;
+
+import modele.plateau.Plateau;
+
+public class Jeu extends Thread{
+    private Plateau plateau;
+    private Joueur j1;
+    private Joueur j2;
+    protected Coup coupRecu;
+    private boolean isPlayer1Turn = true;
+
+
+    //Jeu == Plateau + Joueur 1 + Joueur 2 + gestion du tour + gestion des coups
+
+    public Jeu() {
+        plateau = new Plateau();
+        // créer les joueurs avant d'initialiser le plateau afin d'assigner
+        // la propriété des unités (peuples)
+        j1 = new Joueur(this);
+        j2 = new Joueur(this);
+
+        plateau.initialiser(j1, j2);
+
+        start();
+
+    }
+
+    /**
+     * Pour l'instant le joueur courant est `j1`. Plus tard on pourra étendre
+     * la gestion de tours pour retourner le joueur actif.
+     */
+    public Joueur getCurrentJoueur() {
+        return isPlayer1Turn ? j1 : j2;
+    }
+
+    private void switchTurn() {
+        isPlayer1Turn = !isPlayer1Turn;
+        // reset endurance of new current player
+        getCurrentJoueur().resetEndurance();
+        // notify observers (view) that turn changed so UI can update
+        if (plateau != null) {
+            plateau.notifyChange();
+        }
+    }
+
+    public boolean isPlayer1Turn() {
+        return isPlayer1Turn;
+    }
+
+    public Plateau getPlateau() {
+        return plateau;
+    }
+
+    public Joueur getJ1() {
+        return j1;
+    }
+
+    public Joueur getJ2() {
+        return j2;
+    }
+
+    public void envoyerCoup(Coup c) {
+        coupRecu = c;
+
+        synchronized (this) {
+            notify();
+        }
+
+    }
+
+
+    public void appliquerCoup(Coup coup) {
+        // calculer la portée effective : min(mouvement de l'unité, endurance du joueur courant)
+        if (coup == null || coup.dep == null || coup.dep.getUnites() == null) return;
+        // Ne permettre au joueur de déplacer qu'une seule unité pendant son tour
+        // et s'assurer que l'unité appartient bien au joueur courant.
+        Joueur courant = getCurrentJoueur();
+        modele.jeu.Unites unit = coup.dep.getUnites();
+        if (unit.getOwner() != courant) {
+            // tentative de déplacer une unité qui n'appartient pas au joueur courant -> ignorer
+            return;
+        }
+        if (courant.getActivePeupleClass() != null && courant.getActivePeupleClass() != unit.getClass()) {
+            // tentative de déplacer une autre unité que celle déjà choisie -> ignorer le coup
+            return;
+        }
+
+        int unitMv = unit.getMouvement();
+        // L'endurance représente le nombre de déplacements possibles par tour,
+        // pas les points de mouvement par déplacement. On doit donc permettre
+        // à chaque déplacement d'utiliser la portée complète `unitMv` tant que
+        // le joueur a au moins 1 endurance restante.
+        if (courant.getEndurance() <= 0) {
+            return; // plus d'endurance -> ne rien faire
+        }
+        int maxPortee = unitMv;
+
+        // vérifier si la destination est atteignable (sinon ne rien faire)
+        java.util.List<modele.plateau.Case> accessibles = plateau.casesAccessibles(coup.dep, maxPortee);
+        boolean allowed = false;
+        for (modele.plateau.Case c : accessibles) {
+            if (c == coup.arr) { allowed = true; break; }
+        }
+        if (!allowed) return;
+
+        boolean moved = plateau.deplacerUnite(coup.dep, coup.arr, maxPortee);
+
+        // si c'était le premier déplacement du tour pour ce joueur et que le
+        // déplacement a réussi, fixer l'unité active; si l'attaquant a été
+        // éliminé (moved == false), effacer l'unité active pour permettre de
+        // sélectionner un autre peuple.
+        if (moved) {
+            if (courant.getActivePeupleClass() == null) {
+                courant.setActivePeupleClass(unit.getClass());
+            }
+        } else {
+            // déplacement autorisé mais combattant éliminé -> déselectionner
+            courant.clearActivePeuple();
+        }
+
+        // consommer l'endurance pour la tentative de déplacement
+        courant.consumeEndurance(1);
+        if (courant.getEndurance() <= 0) {
+            switchTurn();
+        }
+    }
+
+    public void run() {
+        jouerPartie();
+    }
+
+    /**
+     * Allow external callers (UI) to force the end of the current player's turn.
+     * This will switch the active player, reset endurance of the new player and
+     * notify observers. It also wakes the game thread waiting for a coup.
+     */
+    public void endTurn() {
+        synchronized (this) {
+            switchTurn();
+            notify();
+        }
+    }
+
+    public void jouerPartie() {
+
+        while(true) {
+            // attendre le coup du joueur courant
+            Joueur courant = getCurrentJoueur();
+            Coup c = courant.getCoup();
+            appliquerCoup(c);
+
+        }
+
+    }
+
+
+}

@@ -1,0 +1,83 @@
+
+
+- jeu de stratégie 2 joueurs
+- 6 tours par défaut
+- plateau = grille carrée 6x6 (générée aléatoirement au lancement d'1 partie)
+- 1 case -> 1 terrain = plaine/forêt/montagne/désert
+- 1 j -> 1 peuple -> humain/elfe/nain/gobelin
+- pts distribués à la fin d'1 tour de jeu
+- 8 unités par joueur
+- 1 unité est jouée max 1 fois en 1 tour
+- 1 unité jouée -> nb_mouvements selon cases adjacentes (pas d'unit de m type)
+		/attaquer unité adjacente adverse
+- calcul du vainqueur lors d'une attaque
+-
+-
+-
+-
+-
+-
+-
+-
+
+
+	I-Se familiariser avec le code fourni. Identifier le modèle, la vue, les contrôleurs.Comprendre le passage de coups à jouer entre le processus graphique et le processus de jeu.
+
+
+
+
+systèmes de déplacement d'unités
+algorithme qui calcule les positions accessibles
+algorithme de propagation, chaque case consomme un point d'enduration
+get consommation/endurance, paramètre biomes
+--> small world middle world: jeu de plateau
+
+
+
+
+L'ia c'est une dinguerie comment elle me fait mon projet
+
+
+Identification modèle-vue-controlleur
+1)rajout de Biome dans Case.java
+2)remplissage de la grille avec des biomes (génération équilibrée aléatoire)
+dans Plateau.initialiser() 
+3)mettreAJourAffichage() pour choisir l'image de fond selon caseBiome
+
+
+
+
+
+endurance -> peuple
+
+//bon on voit l'algorithme de déplacements ensembles
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+
+
+
+
+
+
+----------> commandes de compilations : 
+cd smallWorld
+javac -d out src/vuecontroleur/Main.java
+java -cp out vuecontroleur.Main
+
