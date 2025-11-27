@@ -50,6 +50,7 @@ public class Jeu extends Thread{
     public Joueur getWinner() { return winner; }
 
     private void switchTurn() {
+        // Switch to the other player
         isPlayer1Turn = !isPlayer1Turn;
         // reset endurance of new current player
         getCurrentJoueur().resetEndurance();
@@ -65,6 +66,15 @@ public class Jeu extends Thread{
     private void checkEndOfRound() {
         if (gameOver) return;
         if (j1.getEndurance() == 0 && j2.getEndurance() == 0) {
+            // Award final territory points to both players before deciding winner
+            if (plateau != null) {
+                int j1Territory = plateau.countPreferredTerrainCases(j1);
+                if (j1Territory > 0) j1.addPoints(j1Territory);
+                
+                int j2Territory = plateau.countPreferredTerrainCases(j2);
+                if (j2Territory > 0) j2.addPoints(j2Territory);
+            }
+            
             // If we've reached the maximum number of tours, decide the winner
             if (tourNumber >= maxTours) {
                 if (j1.getPoints() > j2.getPoints()) {
@@ -163,6 +173,10 @@ public class Jeu extends Thread{
         if (moved) {
             if (courant.getActivePeupleClass() == null) {
                 courant.setActivePeupleClass(unit.getClass());
+                // Si le joueur n'a pas encore de peuple préféré, on le définit à partir de sa première unité jouée
+                if (courant.getPreferredPeupleClass() == null) {
+                    courant.setPreferredPeupleClass(unit.getClass());
+                }
             }
             // marquer l'unité comme ayant bougé ce tour
             unit.setHasMoved(true);

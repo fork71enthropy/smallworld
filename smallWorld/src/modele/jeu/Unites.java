@@ -110,6 +110,12 @@ public abstract class Unites {
     public Case getCase() {
         return c;
     }
+
+    /**
+     * Retourne le biome préféré de ce type d'unité.
+     * Utilisé pour attribuer des points bonus en fin de tour.
+     */
+    public abstract Case.Biome getBiomePreference();
 }
 
 /**

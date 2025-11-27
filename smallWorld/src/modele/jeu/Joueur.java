@@ -5,6 +5,8 @@ public class Joueur {
     private int endurance;
     private int points = 0;
     private Class<? extends Unites> activePeupleClass = null;
+    // Le peuple préféré du joueur (pour les points de territoire en fin de tour)
+    private Class<? extends Unites> preferredPeupleClass = null;
 
     public Joueur(Jeu _jeu) {
         jeu = _jeu;
@@ -38,6 +40,14 @@ public class Joueur {
 
     public void clearActivePeuple() {
         this.activePeupleClass = null;
+    }
+
+    public Class<? extends Unites> getPreferredPeupleClass() {
+        return preferredPeupleClass;
+    }
+
+    public void setPreferredPeupleClass(Class<? extends Unites> c) {
+        this.preferredPeupleClass = c;
     }
 
     public Coup getCoup() {

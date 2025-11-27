@@ -299,4 +299,32 @@ public class Plateau extends Observable {
         notifyObservers();
     }
 
+    /**
+     * Compte le nombre de cases occupées par au moins une unité d'un joueur
+     * où le biome de la case correspond au biome préféré de ce type d'unité.
+     * Utilisé pour attribuer des points en fin de tour.
+     */
+    public int countPreferredTerrainCases(Joueur joueur) {
+        if (joueur == null) return 0;
+        int count = 0;
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) {
+                Case c = grilleCases[x][y];
+                if (c != null) {
+                    // Vérifier chaque unité sur cette case
+                    for (Unites u : c.getAllUnites()) {
+                        if (u != null && u.getOwner() == joueur) {
+                            // Si le biome de la case correspond au biome préféré de l'unité
+                            if (c.getBiome() == u.getBiomePreference()) {
+                                count++;
+                                break; // Une seule fois par case (au moins une unité)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
 }

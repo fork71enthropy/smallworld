@@ -8,6 +8,7 @@ public class ImagePanel extends JPanel {
     private Image imgFront;
     private int unitCount = 0;
     private boolean highlighted = false;
+    private String biomeDebug = null;
 
     public void setBackground(Image _imgBackground) {
         imgBackground = _imgBackground;
@@ -23,6 +24,10 @@ public class ImagePanel extends JPanel {
 
     public void setHighlighted(boolean h) {
         highlighted = h;
+    }
+
+    public void setBiomeDebug(String b) {
+        biomeDebug = b;
     }
 
     public boolean isHighlighted() {
@@ -63,6 +68,13 @@ public class ImagePanel extends JPanel {
             int ty = y + fm.getAscent() + (h - fm.getHeight())/2;
             g.drawString(s, tx, ty);
             g.setColor(prev);
+        }
+
+        // debug: afficher le biome en haut à gauche
+        if (biomeDebug != null && !biomeDebug.isEmpty()) {
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 10));
+            g.drawString(biomeDebug.substring(0, 1), 4, 12);
         }
 
         // overlay de surlignage si demandé
