@@ -76,4 +76,10 @@ public class Case {
         this.biome = _biome;
     }
 
+    /** Supprime toutes les unités de la case (utilisé pour réinitialiser la grille). */
+    public void clearUnits() {
+        units.clear();
+        nbUnites = 0;
+    }
+
 }

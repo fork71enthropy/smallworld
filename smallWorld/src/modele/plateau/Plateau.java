@@ -48,6 +48,14 @@ public class Plateau extends Observable {
         // générer les biomes de la grille
         genererBiomesEquilibresRandom();
 
+        // clear any existing units (useful for restart)
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) {
+                Case c = grilleCases[x][y];
+                if (c != null) c.clearUnits();
+            }
+        }
+
         // Positionner 8 unités pour le joueur 1 dans le coin haut-gauche
         int toPlace = 8;
         int placed = 0;

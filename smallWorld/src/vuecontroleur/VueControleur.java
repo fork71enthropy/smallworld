@@ -19,6 +19,7 @@ import modele.jeu.Elfes;
 import modele.jeu.Humain;
 import modele.jeu.Nain;
 import modele.jeu.Gobelin;
+import modele.jeu.Joueur;
 import modele.jeu.Coup;
 import modele.jeu.Jeu;
 import modele.jeu.Unites;
@@ -50,7 +51,11 @@ public class VueControleur extends JFrame implements Observer {
 
     private JLabel lblJ1;
     private JLabel lblJ2;
+    private JLabel lblTour;
+    private JLabel lblWinner;
     private JButton btnEndTurn;
+    private JButton btnRestart;
+    private boolean gameOverDialogShown = false;
 
      
 
@@ -107,18 +112,19 @@ public class VueControleur extends JFrame implements Observer {
 
         setLayout(new BorderLayout());
 
-        // panneau supérieur affichant les joueurs
-        JPanel topPanel = new JPanel(new BorderLayout());
+        // panneau supérieur affichant les joueurs et contrôles
+        JPanel topPanel = new JPanel(new GridLayout(1,5));
         lblJ1 = new JLabel("J1");
+        lblTour = new JLabel("Tour: 1", SwingConstants.CENTER);
+        lblWinner = new JLabel("", SwingConstants.CENTER);
         lblJ2 = new JLabel("J2");
-        lblJ1.setHorizontalAlignment(SwingConstants.LEFT);
-        lblJ2.setHorizontalAlignment(SwingConstants.RIGHT);
         lblJ1.setOpaque(true);
         lblJ2.setOpaque(true);
         lblJ1.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
         lblJ2.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
-        topPanel.add(lblJ1, BorderLayout.WEST);
-        topPanel.add(lblJ2, BorderLayout.EAST);
+        topPanel.add(lblJ1);
+        topPanel.add(lblTour);
+        // (maxTours is configured in code; spinner removed)
         // bouton pour terminer manuellement le tour
         btnEndTurn = new JButton("End Turn");
         btnEndTurn.setFocusable(false);
@@ -133,6 +139,25 @@ public class VueControleur extends JFrame implements Observer {
             }
         });
         topPanel.add(btnEndTurn, BorderLayout.CENTER);
+        // bouton pour recommencer la partie
+        btnRestart = new JButton("Restart");
+        btnRestart.setFocusable(false);
+        btnRestart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    // reset dialog flag so modal can show again later
+                    gameOverDialogShown = false;
+                    jeu.resetGame();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        topPanel.add(btnRestart);
+        topPanel.add(lblJ2);
+        // label winner displayed under the controls (reuse center cell)
+        // we don't add lblWinner to topPanel grid to keep layout simple; it will be shown via title when game ends
         add(topPanel, BorderLayout.NORTH);
 
         grilleIP = new JPanel(new GridLayout(sizeY, sizeX)); // grilleJLabels va contenir les cases graphiques et les positionner sous la forme d'une grille
@@ -158,6 +183,7 @@ public class VueControleur extends JFrame implements Observer {
                         // si pas de sélection en cours : sélectionner seulement si il y a une unité
                         if (caseClic1 == null) {
                             if (clicked != null && clicked.getUnites() != null) {
+                                if (jeu.isGameOver()) return;
                                 // n'autoriser la sélection que si l'unité appartient au joueur courant
                                 if (clicked.getUnites().getOwner() != jeu.getCurrentJoueur()) {
                                     return;
@@ -177,6 +203,7 @@ public class VueControleur extends JFrame implements Observer {
                                 highlightCases(accessibles);
                             }
                         } else {
+                            if (jeu.isGameOver()) return;
                             // si on reclique sur la case source -> annuler
                             if (clicked == caseClic1) {
                                 clearHighlights();
@@ -216,12 +243,12 @@ public class VueControleur extends JFrame implements Observer {
         try {
             // afficher endurance à côté de J1 / J2
             if (jeu.getJ1() != null) {
-                lblJ1.setText("J1 (" + jeu.getJ1().getEndurance() + ")");
+                lblJ1.setText("J1 (E:" + jeu.getJ1().getEndurance() + " P:" + jeu.getJ1().getPoints() + ")");
             } else {
                 lblJ1.setText("J1");
             }
             if (jeu.getJ2() != null) {
-                lblJ2.setText("J2 (" + jeu.getJ2().getEndurance() + ")");
+                lblJ2.setText("J2 (E:" + jeu.getJ2().getEndurance() + " P:" + jeu.getJ2().getPoints() + ")");
             } else {
                 lblJ2.setText("J2");
             }
@@ -284,6 +311,32 @@ public class VueControleur extends JFrame implements Observer {
                 }
             }
         }
+
+        // update title with tour and winner if any
+            try {
+                setTitle("Smallworld - Tour: " + jeu.getTourNumber() + "/" + jeu.getMaxTours());
+                if (jeu.isGameOver()) {
+                    Joueur w = jeu.getWinner();
+                    String winnerText;
+                    if (w == jeu.getJ1()) {
+                        winnerText = "Winner: J1";
+                    } else if (w == jeu.getJ2()) {
+                        winnerText = "Winner: J2";
+                    } else {
+                        winnerText = "Winner: Tie";
+                    }
+                    lblWinner.setText(winnerText);
+                    // show modal dialog once
+                    if (!gameOverDialogShown) {
+                        gameOverDialogShown = true;
+                        JOptionPane.showMessageDialog(VueControleur.this, winnerText + "\nPoints - J1: " + jeu.getJ1().getPoints() + "  J2: " + jeu.getJ2().getPoints(), "Game Over", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                } else {
+                    lblWinner.setText("");
+                }
+            } catch (Exception ex) {
+                // ignore
+            }
 
         grilleIP.repaint();
     }

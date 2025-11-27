@@ -8,6 +8,12 @@ public class Jeu extends Thread{
     private Joueur j2;
     protected Coup coupRecu;
     private boolean isPlayer1Turn = true;
+    // current tour (starts at 1)
+    private int tourNumber = 1;
+    // maximum number of tours to play before ending the match
+    private int maxTours = 2;
+    private boolean gameOver = false;
+    private Joueur winner = null;
 
 
     //Jeu == Plateau + Joueur 1 + Joueur 2 + gestion du tour + gestion des coups
@@ -33,6 +39,16 @@ public class Jeu extends Thread{
         return isPlayer1Turn ? j1 : j2;
     }
 
+    public int getTourNumber() { return tourNumber; }
+
+    public int getMaxTours() { return maxTours; }
+
+    public void setMaxTours(int v) { if (v > 0) this.maxTours = v; }
+
+    public boolean isGameOver() { return gameOver; }
+
+    public Joueur getWinner() { return winner; }
+
     private void switchTurn() {
         isPlayer1Turn = !isPlayer1Turn;
         // reset endurance of new current player
@@ -42,6 +58,35 @@ public class Jeu extends Thread{
             plateau.notifyChange();
             // reset per-unit moved flags for the player who is now active
             plateau.resetMovedForPlayer(getCurrentJoueur());
+        }
+    }
+
+    /** Ends the round if both players have no endurance left. Decides winner and stops the game. */
+    private void checkEndOfRound() {
+        if (gameOver) return;
+        if (j1.getEndurance() == 0 && j2.getEndurance() == 0) {
+            // If we've reached the maximum number of tours, decide the winner
+            if (tourNumber >= maxTours) {
+                if (j1.getPoints() > j2.getPoints()) {
+                    winner = j1;
+                } else if (j2.getPoints() > j1.getPoints()) {
+                    winner = j2;
+                } else {
+                    winner = null; // tie
+                }
+                gameOver = true;
+                if (plateau != null) plateau.notifyChange();
+            } else {
+                // advance to next tour: increment tour counter and reset endurances/hasMoved
+                tourNumber++;
+                j1.resetEndurance();
+                j2.resetEndurance();
+                if (plateau != null) {
+                    plateau.resetMovedForPlayer(j1);
+                    plateau.resetMovedForPlayer(j2);
+                    plateau.notifyChange();
+                }
+            }
         }
     }
 
@@ -128,6 +173,11 @@ public class Jeu extends Thread{
 
         // consommer l'endurance pour la tentative de déplacement
         courant.consumeEndurance(1);
+
+        // After consuming endurance, check if both players have exhausted their endurance
+        checkEndOfRound();
+        if (gameOver) return;
+
         if (courant.getEndurance() <= 0) {
             switchTurn();
         }
@@ -144,8 +194,28 @@ public class Jeu extends Thread{
      */
     public void endTurn() {
         synchronized (this) {
-            switchTurn();
+            // Before forcing a switch, check end-of-round (in case both players have 0)
+            checkEndOfRound();
+            if (!gameOver) {
+                switchTurn();
+            }
             notify();
+        }
+    }
+
+    /** Reset the game to initial state: clears board, resets points and endurance. */
+    public void resetGame() {
+        // clear game state
+        this.gameOver = false;
+        this.winner = null;
+        this.tourNumber = 1;
+        // reset players
+        if (j1 != null) { j1.resetPoints(); j1.resetEndurance(); j1.clearActivePeuple(); }
+        if (j2 != null) { j2.resetPoints(); j2.resetEndurance(); j2.clearActivePeuple(); }
+        // clear cases and reinitialize placement
+        if (plateau != null) {
+            plateau.initialiser(j1, j2);
+            plateau.notifyChange();
         }
     }
 

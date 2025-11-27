@@ -35,7 +35,7 @@ get consommation/endurance, paramètre biomes
 
 
 
-L'ia c'est une dinguerie comment elle me fait mon projet
+L'ia c'est une dinguerie comment elle me fait mon projet. Elle mérite une pipe. L'ia se développe à une vitesse allucinante. C'est fou comment cursor me code mon projet à partir de prompts précis. 
 
 
 Identification modèle-vue-controlleur

@@ -3,11 +3,25 @@ package modele.jeu;
 public class Joueur {
     private Jeu jeu;
     private int endurance;
+    private int points = 0;
     private Class<? extends Unites> activePeupleClass = null;
 
     public Joueur(Jeu _jeu) {
         jeu = _jeu;
         this.endurance = 2;
+    }
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void addPoints(int v) {
+        this.points += v;
+        if (this.points < 0) this.points = 0;
+    }
+
+    public void resetPoints() {
+        this.points = 0;
     }
 
     public int getEndurance() {

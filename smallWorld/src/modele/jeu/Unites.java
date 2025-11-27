@@ -12,7 +12,7 @@ public abstract class Unites {
     protected Plateau plateau;
     protected Joueur owner = null;
     // nombre de cases que l'unité peut parcourir par déplacement (par défaut 1)
-    protected int mouvement = 2;
+    protected int mouvement = 3;
     // indique si l'unité a déjà effectué un déplacement pendant le tour courant
     protected boolean hasMoved = false;
 
@@ -88,9 +88,21 @@ public abstract class Unites {
             }
             // ajouter l'attaquant (empilement/prise de case)
             cible.ajouterUnite(this);
+            // attribuer un point au propriétaire de l'attaquant
+            if (this.getOwner() != null) {
+                this.getOwner().addPoints(1);
+            }
+            // notifier le plateau pour rafraîchir l'interface
+            if (plateau != null) plateau.notifyChange();
             return true;
         } else {
             // l'attaquant perd : il a déjà été retiré de sa case source
+            // attribuer un point au propriétaire de la/du défenseur si disponible
+            if (def != null && def.getOwner() != null) {
+                def.getOwner().addPoints(1);
+            }
+            // notifier le plateau pour rafraîchir l'interface
+            if (plateau != null) plateau.notifyChange();
             return false;
         }
     }
