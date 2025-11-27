@@ -40,6 +40,8 @@ public class Jeu extends Thread{
         // notify observers (view) that turn changed so UI can update
         if (plateau != null) {
             plateau.notifyChange();
+            // reset per-unit moved flags for the player who is now active
+            plateau.resetMovedForPlayer(getCurrentJoueur());
         }
     }
 
@@ -72,12 +74,16 @@ public class Jeu extends Thread{
     public void appliquerCoup(Coup coup) {
         // calculer la portée effective : min(mouvement de l'unité, endurance du joueur courant)
         if (coup == null || coup.dep == null || coup.dep.getUnites() == null) return;
-        // Ne permettre au joueur de déplacer qu'une seule unité pendant son tour
+        // Ne permettre au joueur de déplacer qu'une seule unité (peuple) pendant son tour
         // et s'assurer que l'unité appartient bien au joueur courant.
         Joueur courant = getCurrentJoueur();
         modele.jeu.Unites unit = coup.dep.getUnites();
         if (unit.getOwner() != courant) {
             // tentative de déplacer une unité qui n'appartient pas au joueur courant -> ignorer
+            return;
+        }
+        // n'autoriser le déplacement que si l'unité n'a pas déjà bougé ce tour
+        if (unit.hasMoved()) {
             return;
         }
         if (courant.getActivePeupleClass() != null && courant.getActivePeupleClass() != unit.getClass()) {
@@ -113,6 +119,8 @@ public class Jeu extends Thread{
             if (courant.getActivePeupleClass() == null) {
                 courant.setActivePeupleClass(unit.getClass());
             }
+            // marquer l'unité comme ayant bougé ce tour
+            unit.setHasMoved(true);
         } else {
             // déplacement autorisé mais combattant éliminé -> déselectionner
             courant.clearActivePeuple();

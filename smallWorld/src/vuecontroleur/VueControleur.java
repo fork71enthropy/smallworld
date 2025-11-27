@@ -162,6 +162,10 @@ public class VueControleur extends JFrame implements Observer {
                                 if (clicked.getUnites().getOwner() != jeu.getCurrentJoueur()) {
                                     return;
                                 }
+                                // et si l'unité n'a pas déjà bougé ce tour
+                                if (clicked.getUnites().hasMoved()) {
+                                    return;
+                                }
                                 caseClic1 = clicked;
                                 // calculer et surligner les cases accessibles
                                 // n'autoriser la sélection que si le joueur a encore

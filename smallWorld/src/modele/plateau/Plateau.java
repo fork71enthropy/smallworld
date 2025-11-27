@@ -9,6 +9,7 @@ import modele.jeu.Elfes;
 import modele.jeu.Humain;
 import modele.jeu.Gobelin;
 import modele.jeu.Unites;
+import modele.jeu.Joueur;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -214,6 +215,24 @@ public class Plateau extends Observable {
             setChanged();
             notifyObservers();
             return false;
+        }
+    }
+
+    /**
+     * Reset the moved flag for all units owned by the given player.
+     */
+    public void resetMovedForPlayer(Joueur j) {
+        if (j == null) return;
+        for (int x = 0; x < SIZE_X; x++) {
+            for (int y = 0; y < SIZE_Y; y++) {
+                Case c = grilleCases[x][y];
+                if (c != null && c.getUnites() != null) {
+                    Unites u = c.getUnites();
+                    if (u.getOwner() == j) {
+                        u.setHasMoved(false);
+                    }
+                }
+            }
         }
     }
 

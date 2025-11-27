@@ -13,6 +13,8 @@ public abstract class Unites {
     protected Joueur owner = null;
     // nombre de cases que l'unité peut parcourir par déplacement (par défaut 1)
     protected int mouvement = 2;
+    // indique si l'unité a déjà effectué un déplacement pendant le tour courant
+    protected boolean hasMoved = false;
 
     public Unites(Plateau _plateau) {
         plateau = _plateau;
@@ -21,6 +23,14 @@ public abstract class Unites {
 
     public int getMouvement() {
         return mouvement;
+    }
+
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    public void setHasMoved(boolean v) {
+        this.hasMoved = v;
     }
 
     public Joueur getOwner() {
