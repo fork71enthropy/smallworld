@@ -53,6 +53,7 @@ endurance -> peuple
 //bon on voit l'algorithme de déplacements ensembles
 
 
+elfe -> forêt
 
 
 
@@ -78,6 +79,4 @@ endurance -> peuple
 
 ----------> commandes de compilations : 
 cd smallWorld
-javac -d out src/vuecontroleur/Main.java
-java -cp out vuecontroleur.Main
 
