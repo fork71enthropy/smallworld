@@ -65,7 +65,9 @@ elfe -> forêt
 
 
 
-
+03/12/2025
+page 38, exemple de diagramme de cas d'utilisation
+2_part2/2_UML.pdf
 
 
 		
@@ -79,4 +81,5 @@ elfe -> forêt
 
 ----------> commandes de compilations : 
 cd smallWorld
-
+javac -d out $(find src -name "*.java")
+java -cp out Main
