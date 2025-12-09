@@ -11,7 +11,7 @@ public class Jeu extends Thread{
     // current tour (starts at 1)
     private int tourNumber = 1;
     // maximum number of tours to play before ending the match
-    private int maxTours = 2;
+    private int maxTours = 3;
     private boolean gameOver = false;
     private Joueur winner = null;
 
@@ -89,6 +89,7 @@ public class Jeu extends Thread{
             } else {
                 // advance to next tour: increment tour counter and reset endurances/hasMoved
                 tourNumber++;
+                isPlayer1Turn = true; // Always start new tour with J1
                 j1.resetEndurance();
                 j2.resetEndurance();
                 if (plateau != null) {
