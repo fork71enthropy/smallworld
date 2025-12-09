@@ -315,6 +315,7 @@ public class VueControleur extends JFrame implements Observer {
         // update title with tour and winner if any
             try {
                 setTitle("Smallworld - Tour: " + jeu.getTourNumber() + "/" + jeu.getMaxTours());
+                lblTour.setText("Tour: " + jeu.getTourNumber());
                 if (jeu.isGameOver()) {
                     Joueur w = jeu.getWinner();
                     String winnerText;

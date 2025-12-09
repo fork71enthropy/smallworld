@@ -50,6 +50,16 @@ public class Jeu extends Thread{
     public Joueur getWinner() { return winner; }
 
     private void switchTurn() {
+        // Check if both players have exhausted their endurance BEFORE switching
+        // (this is when we know a round is complete)
+        if (j1.getEndurance() == 0 && j2.getEndurance() == 0) {
+            checkEndOfRound();
+            if (gameOver) return;
+            // If not game over, endurances were already reset in checkEndOfRound
+            // and isPlayer1Turn is already set to true
+            return;
+        }
+        
         // Switch to the other player
         isPlayer1Turn = !isPlayer1Turn;
         // reset endurance of new current player
@@ -189,10 +199,8 @@ public class Jeu extends Thread{
         // consommer l'endurance pour la tentative de déplacement
         courant.consumeEndurance(1);
 
-        // After consuming endurance, check if both players have exhausted their endurance
-        checkEndOfRound();
-        if (gameOver) return;
-
+        // Si le joueur courant n'a plus d'endurance, changer de joueur
+        // (switchTurn() vérifiera automatiquement la fin du tour si les deux joueurs ont endurance == 0)
         if (courant.getEndurance() <= 0) {
             switchTurn();
         }
@@ -209,9 +217,10 @@ public class Jeu extends Thread{
      */
     public void endTurn() {
         synchronized (this) {
-            // Before forcing a switch, check end-of-round (in case both players have 0)
-            checkEndOfRound();
             if (!gameOver) {
+                // Mettre l'endurance du joueur courant à 0 pour forcer le changement
+                getCurrentJoueur().consumeEndurance(getCurrentJoueur().getEndurance());
+                // switchTurn() vérifiera automatiquement la fin du tour si les deux joueurs ont endurance == 0
                 switchTurn();
             }
             notify();
