@@ -1,0 +1,284 @@
+================================================================================
+                    RAPPORT DE PROJET - SMALLWORLD
+                    Projet de Programmation Orientée Objet
+================================================================================
+
+Auteur: Joel
+Période: 2 semaines (environ 70 heures de travail)
+Date de finalisation: Décembre 2025
+Language: Java
+Framework: Swing (interface graphique)
+
+================================================================================
+                            RÉSUMÉ EXÉCUTIF
+================================================================================
+
+Ce projet implémente un jeu de stratégie au tour par tour inspiré de SmallWorld.
+Il s'agit d'un jeu à deux joueurs sur un plateau 6x6 avec différents biomes
+(Plaine, Forêt, Montagne, Désert) et quatre types de peuples (Humain, Elfe,
+Nain, Gobelin). Le jeu utilise une architecture MVC (Modèle-Vue-Contrôleur)
+avec un thread de jeu séparé et un pattern Observer pour la synchronisation
+entre le modèle et l'interface graphique.
+
+L'objectif pédagogique était de maîtriser les concepts fondamentaux de la POO:
+héritage, polymorphisme, encapsulation, interfaces, composition, patterns de
+conception, et gestion de la concurrence avec les threads.
+
+================================================================================
+                        ARCHITECTURE DU PROJET
+================================================================================
+
+Le projet est structuré selon le pattern MVC avec 13 classes Java:
+
+MODÈLE (Package modele.jeu et modele.plateau):
+  - Jeu.java          : Thread principal, orchestrateur du jeu
+  - Joueur.java       : Gestion de l'état d'un joueur
+  - Plateau.java      : Grille de jeu (Observable)
+  - Case.java         : Cellule du plateau avec biome et unités
+  - Unites.java       : Classe abstraite pour les peuples
+  - Humain.java       : Peuple préférant les plaines
+  - Elfes.java        : Peuple préférant les forêts
+  - Nain.java         : Peuple préférant les montagnes
+  - Gobelin.java      : Peuple préférant les déserts
+  - Coup.java         : Structure de données pour les déplacements
+
+VUE/CONTRÔLEUR (Package vuecontroleur):
+  - VueControleur.java : Interface graphique principale (Observer)
+  - ImagePanel.java    : Composant graphique personnalisé pour les cases
+
+POINT D'ENTRÉE:
+  - Main.java          : Lancement de l'application
+
+RELATIONS D'HÉRITAGE:
+  - Jeu extends Thread
+  - Plateau extends Observable
+  - VueControleur extends JFrame implements Observer
+  - ImagePanel extends JPanel
+  - Humain/Elfes/Nain/Gobelin extends Unites
+
+PATTERNS DE CONCEPTION UTILISÉS:
+  - MVC (Modèle-Vue-Contrôleur)
+  - Observer/Observable (synchronisation modèle-vue)
+  - Template Method (Unites.getBiomePreference() abstraite)
+  - Thread (exécution parallèle du jeu)
+  - Composition (Jeu compose Plateau, Joueur, etc.)
+
+================================================================================
+                    LISTE DES FONCTIONNALITÉS IMPLÉMENTÉES
+================================================================================
+
+1. GÉNÉRATION DU PLATEAU (Temps: 8h - 11% du projet)
+   - Grille 6x6 de cases
+   - Distribution équilibrée et aléatoire des 4 biomes
+   - Affichage graphique des terrains avec images appropriées
+   - Mapping case <-> position (x,y)
+
+2. PLACEMENT INITIAL DES UNITÉS (Temps: 4h - 6% du projet)
+   - 8 unités Humain pour le joueur 1 (coin haut-gauche)
+   - 8 unités Gobelin pour le joueur 2 (coin bas-droit)
+   - Affichage graphique des unités avec compteur d'empilement
+   - Assignation automatique du propriétaire (owner)
+
+3. SYSTÈME DE TOURS (Temps: 12h - 17% du projet)
+   - Alternance automatique entre J1 et J2
+   - Compteur de tours avec limite paramétrable (défaut: 2 tours)
+   - Affichage du tour courant dans le titre et dans l'interface
+   - Réinitialisation des états en début de tour
+   - J1 commence toujours chaque nouveau tour
+
+4. GESTION DE L'ENDURANCE (Temps: 8h - 11% du projet)
+   - Chaque joueur a 2 points d'endurance par tour
+   - Consommation d'1 point par déplacement/attaque
+   - Changement automatique de joueur quand endurance épuisée
+   - Affichage en temps réel de l'endurance restante
+   - Bouton "End Turn" pour passer son tour manuellement
+
+5. SYSTÈME DE DÉPLACEMENT (Temps: 15h - 21% du projet)
+   - Calcul des cases accessibles avec algorithme BFS directionnel
+   - Portée de 3 cases par déplacement
+   - Déplacements orthogonaux uniquement (pas de diagonale)
+   - Surlignage visuel des cases accessibles au clic
+   - Sélection case source → case destination
+   - Validation que l'unité appartient au joueur courant
+   - Une seule unité peut bouger par tour (restriction de peuple actif)
+   - Flag "hasMoved" pour empêcher les doubles déplacements
+   - Empilement autorisé sur cases du même type
+
+6. SYSTÈME DE COMBAT (Temps: 10h - 14% du projet)
+   - Combat déclenché lors d'un déplacement sur case ennemie
+   - Résolution aléatoire 50/50 (attaquant vs défenseur)
+   - Attaquant gagne: retire une unité ennemie, prend la case, +1 point
+   - Attaquant perd: unité éliminée, défenseur gagne +1 point
+   - Notification visuelle immédiate des changements
+   - Gestion correcte de l'empilement après combat
+
+7. SYSTÈME DE POINTS (Temps: 6h - 9% du projet)
+   - +1 point par victoire au combat
+   - Points de territoire en fin de tour selon biome préféré
+   - Comptage des cases contrôlées avec le bon biome
+   - Affichage en temps réel des scores J1 et J2
+   - Détermination du gagnant par comparaison des points
+
+8. FIN DE PARTIE (Temps: 5h - 7% du projet)
+   - Détection automatique après le nombre de tours maximum
+   - Attribution des derniers points de territoire
+   - Affichage du gagnant (J1, J2, ou égalité)
+   - Dialogue modal avec résultats finaux
+   - Label "Winner" dans l'interface
+
+9. BOUTON RESTART (Temps: 3h - 4% du projet)
+   - Réinitialisation complète de la partie
+   - Nettoyage du plateau
+   - Reset des points et de l'endurance
+   - Nouveau placement aléatoire des biomes
+   - Nouveau placement des unités initiales
+   - Retour au tour 1 avec J1 qui commence
+
+10. POLYMORPHISME DES PEUPLES (Temps: 7h - 10% du projet)
+    - Classe abstraite Unites avec méthode getBiomePreference()
+    - 4 implémentations concrètes (Humain, Elfes, Nain, Gobelin)
+    - Chaque peuple a son biome préféré pour les points bonus
+    - Images distinctes par type de peuple
+    - Extensibilité: facile d'ajouter de nouveaux peuples
+
+11. INTERFACE GRAPHIQUE SWING (Temps: 10h - 14% du projet)
+    - Fenêtre JFrame avec titre dynamique
+    - Grille de 36 ImagePanel personnalisés
+    - MouseListener pour les interactions
+    - Affichage des images de fond (biomes)
+    - Affichage des unités en superposition
+    - Labels pour scores, tour, joueur actif, gagnant
+    - Boutons End Turn et Restart fonctionnels
+    - Surlignage jaune des cases accessibles
+
+12. SYNCHRONISATION THREAD + OBSERVER (Temps: 12h - 17% du projet)
+    - Jeu s'exécute dans un thread séparé
+    - Boucle de jeu avec wait()/notify() pour synchronisation
+    - Pattern Observer: Plateau notifie VueControleur
+    - Rafraîchissement automatique de l'interface
+    - Gestion de la concurrence entre thread de jeu et EDT Swing
+    - Prévention des deadlocks et race conditions
+
+13. DÉBOGAGE ET CORRECTIONS (Temps: 14h - 20% du projet)
+    - Résolution du bug d'alternance des tours
+    - Correction de la logique checkEndOfRound()
+    - Fix du problème de switchTurn() et réinitialisation d'endurance
+    - Correction de l'affichage du numéro de tour
+    - Tests exhaustifs de tous les cas limites
+    - Validation de la logique de fin de partie
+
+================================================================================
+                        RÉPARTITION DU TEMPS DE TRAVAIL
+================================================================================
+
+PHASE 1: CONCEPTION ET ARCHITECTURE (Temps: 6h - 9%)
+  - Analyse des besoins et spécifications
+  - Conception UML (diagramme de classes)
+  - Choix des patterns de conception
+  - Définition de l'architecture MVC
+
+PHASE 2: DÉVELOPPEMENT DU MODÈLE (Temps: 30h - 43%)
+  - Implémentation des classes du modèle (Jeu, Joueur, Plateau, Case, Unites)
+  - Logique de déplacement et calcul d'accessibilité
+  - Système de combat et attribution de points
+  - Gestion des tours et de l'endurance
+  - Thread de jeu et synchronisation
+
+PHASE 3: DÉVELOPPEMENT DE LA VUE (Temps: 14h - 20%)
+  - Interface graphique Swing
+  - Composants personnalisés (ImagePanel)
+  - Chargement et affichage des images
+  - Gestion des événements souris
+  - Pattern Observer pour mise à jour automatique
+
+PHASE 4: INTÉGRATION ET TESTS (Temps: 10h - 14%)
+  - Intégration modèle-vue
+  - Tests de l'alternance des tours
+  - Tests des combats et des points
+  - Validation de la fin de partie
+  - Tests de l'interface utilisateur
+
+PHASE 5: DÉBOGAGE ET OPTIMISATION (Temps: 10h - 14%)
+  - Résolution des bugs critiques
+  - Correction de la logique des tours
+  - Fix des problèmes de synchronisation
+  - Optimisation du code
+  - Refactoring et amélioration de la lisibilité
+
+TOTAL: ~70 heures sur 2 semaines (moyenne de 5h/jour)
+
+================================================================================
+                        DÉFIS TECHNIQUES RENCONTRÉS
+================================================================================
+
+1. GESTION DE LA CONCURRENCE
+   Le plus grand défi a été la synchronisation entre le thread de jeu et
+   l'interface graphique Swing. L'utilisation de wait()/notify() et du pattern
+   Observer a nécessité une compréhension approfondie de la concurrence en Java.
+
+2. LOGIQUE DE FIN DE TOUR
+   Déterminer le bon moment pour vérifier si les deux joueurs ont épuisé leur
+   endurance et passer au tour suivant a été complexe. La solution finale
+   consiste à vérifier dans switchTurn() AVANT de réinitialiser l'endurance.
+
+3. ALGORITHME DE DÉPLACEMENT
+   L'implémentation d'un BFS directionnel pour calculer les cases accessibles
+   en respectant la contrainte de portée a nécessité plusieurs itérations.
+
+4. GESTION DES ÉTATS
+   Suivre l'état de chaque unité (hasMoved), du joueur (endurance, peuple
+   actif), et du jeu (tour, gameOver) tout en maintenant la cohérence a
+   demandé une attention particulière.
+
+================================================================================
+                        COMPÉTENCES ACQUISES
+================================================================================
+
+- Maîtrise de l'héritage et du polymorphisme en Java
+- Utilisation des classes abstraites et des méthodes abstraites
+- Implémentation du pattern Observer/Observable
+- Gestion de threads et synchronisation (wait/notify)
+- Conception d'architecture MVC robuste
+- Développement d'interfaces graphiques avec Swing
+- Gestion d'événements utilisateur (MouseListener)
+- Algorithmes de parcours de graphe (BFS)
+- Débogage systématique et résolution de problèmes complexes
+- Organisation et structuration de code en packages
+- Documentation et lisibilité du code
+
+================================================================================
+                        AMÉLIORATIONS FUTURES POSSIBLES
+================================================================================
+
+1. Ajout d'une intelligence artificielle pour jouer contre l'ordinateur
+2. Système de compétences spéciales par peuple
+3. Plus de types de terrains et d'unités
+4. Mode multijoueur en réseau
+5. Sauvegarde et chargement de parties
+6. Animations pour les déplacements et combats
+7. Effets sonores et musique de fond
+8. Système de niveaux et de progression
+9. Éditeur de cartes personnalisées
+10. Statistiques détaillées et historique des parties
+
+================================================================================
+                              CONCLUSION
+================================================================================
+
+Ce projet SmallWorld représente une application complète et fonctionnelle des
+concepts de programmation orientée objet. L'architecture MVC, l'utilisation
+de patterns de conception, la gestion de la concurrence, et l'interface
+graphique Swing démontrent une compréhension solide des principes fondamentaux
+de la POO et du développement logiciel en Java.
+
+Le projet est extensible et maintenable grâce à une séparation claire des
+responsabilités, l'utilisation de l'héritage pour les peuples, et le pattern
+Observer pour la communication entre composants.
+
+Les deux semaines de développement ont permis d'approfondir la maîtrise de
+Java, de résoudre des problèmes complexes de synchronisation, et de créer
+une application interactive complète avec une expérience utilisateur fluide.
+
+================================================================================
+                            FIN DU RAPPORT
+================================================================================
