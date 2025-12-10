@@ -180,6 +180,7 @@ public class VueControleur extends JFrame implements Observer {
                     @Override
                     public void mouseClicked(MouseEvent e) {
 
+                        //Case clicked = plateau.getCases()[xx][yy];
                         Case clicked = plateau.getCases()[xx][yy];
 
                         // si pas de sélection en cours : sélectionner seulement si il y a une unité
