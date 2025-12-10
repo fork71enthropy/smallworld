@@ -171,6 +171,8 @@ public class VueControleur extends JFrame implements Observer {
 
                 tabIP[x][y] = iP; // on conserve les cases graphiques dans tabJLabel pour avoir un accès pratique à celles-ci (voir mettreAJourAffichage() )
 
+                // J'en lève les xx et yy pour tester entre temps ! Je pense que je l'avais mis parce que 
+                // une classe anonyme ne peut pas utiliser de variable qui change
                 final int xx = x; // permet de compiler la classe anonyme ci-dessous
                 final int yy = y;
                 // écouteur de clics
