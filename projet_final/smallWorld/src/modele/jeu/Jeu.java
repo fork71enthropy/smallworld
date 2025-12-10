@@ -86,7 +86,7 @@ public class Jeu extends Thread{
                 if (j2Territory > 0) j2.addPoints(j2Territory);
             }
             
-            // If we've reached the maximum number of tours, decide the winner
+            // Il faut décider le gagnant si on a atteint 
             if (tourNumber >= maxTours) {
                 if (j1.getPoints() > j2.getPoints()) {
                     winner = j1;
