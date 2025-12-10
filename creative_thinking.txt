@@ -14,8 +14,8 @@ Model layer : toujours l'observable
 View layer : affichage et présentation des données; Toujours l'observer du modèle. 
 Controler layer : intermédiaire entre Model et View layer. Ecoute les événements utilisateur (clics,boutons), coordonne View et Model. Dans le projet : MouseListener (gère les clics souris), ActionListener (gère les boutons)
 
-2)Question : Comment se déroule un tour du jeu, étape par étape ?
-Réponse : 8 steps
+2)Question : Comment se déroule un tour du jeu, étape par étape ? Décris le cycle de vie d'un tour de jeu
+Réponse : 13 steps
 -step 1 : état initial : Jeu.java : isPlayer1Turn,endurance,activePeupleClass
 -step 2 : selection unite : VueControleur.java : MouseListener appelé via la fonction mouseClicked(MouseEvent e) 
 -step 3 : VueControleur.java : J1 choisit la destination via un second clic, géré par le else caseClic2 = clicked => jeu.envoyerCoup au modele
@@ -34,13 +34,25 @@ nb :         btnEndTurn.addActionListener(new ActionListener()
 ligne 131 dans VueControleur.java gère le cas où la fonction endTurn dans Jeu.va est appelée
 
 3) Question : Il y'a combien de threads au final dans ce projet ? 
+Réponse : 3
+
+4) Question : Si je change une règle (ex : mouvement +1), où faut-il modifier le code ?
 Réponse : 
 
+5) Question : Explique-moi pourquoi tu utilises l’héritage ici, et pas une interface / composition.
+
+6) Question : Comment fonctionne l’observer pattern dans ton projet ?
+
+7) Question : Si je clique sur une case du plateau, comment le programme sait-il quelle case j'ai cliquée et comment réagit-il ? Décrivez le chemin complet depuis le clic de souris jusqu'à l'action dans le jeu.
+
+8) Question : Pourquoi avez-vous créé une classe ImagePanel qui étend JPanel au lieu d'utiliser directement des JPanel avec des ImageIcon ?
+
+9) Question : Dans votre structure de fichiers, vous avez des images d'unités (unit_blue.png, unit_red.png, etc.) et de terrains (desert.png, forest.png, etc.). Comment ces images sont-elles chargées et affichées dans le jeu ?
 
 
 
+smallWorld ligne 320
 
 
-
-
+->revoir les couleurs pour les terrains préférés
 

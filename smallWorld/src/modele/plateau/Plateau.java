@@ -145,27 +145,27 @@ public class Plateau extends Observable {
 
     /**
      * Tutor-prescribed BFS: populate `lst` with reachable cases starting from
-     * `start`, exploring up to `enduranceRestante` steps (levels). This method
-     * follows the algorithm shape provided by the tutor: it visits the start
-     * and then explores neighbours recursively/level-by-level. We also forbid
-     * entering on a case containing units of the same class as the start unit.
+     * `start`, exploring up to `enduranceRestante` steps (levels). 
+     * 
+     * Trouver toutes les cases atteignables en ligne droite depuis start 
+     * avec maximum enduranceRestante déplacements
      */
     public void casesAccessibles(Case start, int enduranceRestante, java.util.List<Case> lst) {
         if (start == null || enduranceRestante <= 0 || lst == null) return;
 
-        // startClass is no longer used: we allow entering/passing over same-type units
-
+        
+        /**
+         * ensemble des cases déjà visitées (évite les doublons)
+         */
         java.util.Set<Case> visited = new java.util.HashSet<>();
-
-        // mark start visited but do NOT add it to the result (base rules)
         visited.add(start);
 
-        // enqueue first-level neighbours, each with its direction
+        // pour stocker une case ET sa direction d'origine
         class Node { Case c; int dir; Node(Case c, int dir){this.c=c;this.dir=dir;} }
         java.util.Queue<Node> qq = new java.util.ArrayDeque<>();
 
         int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
-        // first level
+        // premier niveau
         for (int d = 0; d < dirs.length; d++) {
             int nx = map.get(start).x + dirs[d][0];
             int ny = map.get(start).y + dirs[d][1];
