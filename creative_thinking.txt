@@ -1,0 +1,46 @@
+---> Il faut toujours que je tombe sur un article qui m'énerve
+
+
+1)Question: Comment tu sais où mettre les fonctions pour ajouter de nouvelles fonctionnalités ? C'est quoi ta méthodologie de travail ? 
+1) Réponse : Je me demande à quelle couche appartient cette fonctionnalité, du moins quelle est sa nature. Exemple, dans l'architecture mvc, architecture qui m'a été imposée, on a le model layer, le view layer, et le controler layer. 
+Model layer : gestion des données et de la logique métier,cad stockage de l'état du jeu, application des règles et calculs du jeu, notification des changements via observer. Observer : pattern de conception (design pattern) qui permet à un objet (le sujet) de notifier automatiquement plusieurs autres objets (les observateurs) quand son état change. Observable : émetteur; Observer : receveur,écoute et réagit ; 
+Observable : Plateau (émet, notifie les changements)
+Observer : VueControleur (recoit,écoute et réagit) 
+1 seul observable (Plateau) et un seul observer (VueControleur)
+View layer : 
+->Logique métier,données,règles du jeu => jeu,plateau,joueur,unites :
+
+Model layer : toujours l'observable
+View layer : affichage et présentation des données; Toujours l'observer du modèle. 
+Controler layer : intermédiaire entre Model et View layer. Ecoute les événements utilisateur (clics,boutons), coordonne View et Model. Dans le projet : MouseListener (gère les clics souris), ActionListener (gère les boutons)
+
+2)Question : Comment se déroule un tour du jeu, étape par étape ?
+Réponse : 8 steps
+-step 1 : état initial : Jeu.java : isPlayer1Turn,endurance,activePeupleClass
+-step 2 : selection unite : VueControleur.java : MouseListener appelé via la fonction mouseClicked(MouseEvent e) 
+-step 3 : VueControleur.java : J1 choisit la destination via un second clic, géré par le else caseClic2 = clicked => jeu.envoyerCoup au modele
+-step 4 : traitement du coup par le modèle : Jeu.java : ligne 246; jouerPartie() => appliquerCoup(c)
+-step 5 : void appliquerCoup(Coup coup) : Jeu.java : ligne 140; jusqu'à plateau.deplacerUnite ligne 180
+-step 6 : ligne 223; Plateau.java : deplacerUnite; => allerSurCase 
+-step 7 : ligne 49; Unites.java :allerSurCase = > arriverCase(c,this) => combattreSurCase(c) 
+-step 8 : ligne 68; Unites.java :  combattreSurCase(Case cible) : 
+-step 9 : Interface rafraichie : VueControler.java : pattern Observer déclenché; update(Observable o, Object arg) 
+-step 10 : J1 joue son second coup; état : j1.endurance = 1; j1.activePeupleClass = Humain.class; J1 sélectionne une autre unité et le déplace; même processus. Après le second déplacement, j1.consumeEndurance(1);
+-step 11 : fin de tour de j1 car endurance == 0; Jeu.java : ligne 207 avec la if condition => switchTurn ligne 52 => checkEndOfRound ligne 76
+-step 12 : fin de tour (car les deux joueurs ont joué et leur endurance est nulle) : Jeu.java : switchTurn ligne 52 détecte la fin de tour avec checkEndOfRound() 
+-step 13 : Jeu.java : checkEndOfRound() fait le comptage de points et décide du gagnant si on a atteint le maxTours. Il fait la vérification de fin de partie ou bien nouveau tour
+
+nb :         btnEndTurn.addActionListener(new ActionListener() 
+ligne 131 dans VueControleur.java gère le cas où la fonction endTurn dans Jeu.va est appelée
+
+3) Question : Il y'a combien de threads au final dans ce projet ? 
+Réponse : 
+
+
+
+
+
+
+
+
+

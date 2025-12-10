@@ -214,6 +214,7 @@ public class VueControleur extends JFrame implements Observer {
                             // si la case cliquée est surlignée, on envoie le coup
                             if (tabContainsCaseHighlighted(clicked)) {
                                 caseClic2 = clicked;
+                                    // Crée et envoie le coup au modèle
                                 jeu.envoyerCoup(new Coup(caseClic1, caseClic2));
                             }
 
@@ -379,8 +380,8 @@ public class VueControleur extends JFrame implements Observer {
         }
         return false;
     }
-
-    @Override
+                //VueControleur lit les nouvelles données du plateau et rafraichit l'interface graphique
+    @Override //C'est ici la réaction de l'observer, c'est ici qu'il se met à jour dès qu'il recoit le signal de l'observable
     public void update(Observable o, Object arg) {
 
         SwingUtilities.invokeLater(new Runnable() {

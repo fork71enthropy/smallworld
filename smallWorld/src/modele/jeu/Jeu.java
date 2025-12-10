@@ -62,7 +62,8 @@ public class Jeu extends Thread{
         
         // Switch to the other player
         isPlayer1Turn = !isPlayer1Turn;
-        // reset endurance of new current player
+        // reset l'endurance du joueur actuelle, et non du joueur précédent, sinon on ne saura pas calculer
+        // la fin d'un tour
         getCurrentJoueur().resetEndurance();
         // notify observers (view) that turn changed so UI can update
         if (plateau != null) {
@@ -144,14 +145,16 @@ public class Jeu extends Thread{
         // et s'assurer que l'unité appartient bien au joueur courant.
         Joueur courant = getCurrentJoueur();
         modele.jeu.Unites unit = coup.dep.getUnites();
+        // 1. L'unité appartient au joueur courant ?
         if (unit.getOwner() != courant) {
             // tentative de déplacer une unité qui n'appartient pas au joueur courant -> ignorer
             return;
         }
-        // n'autoriser le déplacement que si l'unité n'a pas déjà bougé ce tour
+        // 2. L'unité n'a pas déjà bougé ?
         if (unit.hasMoved()) {
             return;
         }
+        // 3. Le joueur joue le bon peuple ?
         if (courant.getActivePeupleClass() != null && courant.getActivePeupleClass() != unit.getClass()) {
             // tentative de déplacer une autre unité que celle déjà choisie -> ignorer le coup
             return;
@@ -182,6 +185,7 @@ public class Jeu extends Thread{
         // éliminé (moved == false), effacer l'unité active pour permettre de
         // sélectionner un autre peuple.
         if (moved) {
+            // Fixe le peuple actif (ne peut plus jouer d'autres peuples)
             if (courant.getActivePeupleClass() == null) {
                 courant.setActivePeupleClass(unit.getClass());
                 // Si le joueur n'a pas encore de peuple préféré, on le définit à partir de sa première unité jouée

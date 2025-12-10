@@ -80,7 +80,7 @@ public class Plateau extends Observable {
         }
 
         setChanged();
-        notifyObservers();
+        notifyObservers(); //indispensable pour alerter VueControleur
     }
 
     /**
