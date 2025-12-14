@@ -3,7 +3,7 @@
                     Projet de Programmation Orientée Objet
 ================================================================================
 
-Auteur: Joel
+Auteur: Joel, Aissatou
 Période: 2 semaines (environ 70 heures de travail)
 Date de finalisation: Décembre 2025
 Language: Java
